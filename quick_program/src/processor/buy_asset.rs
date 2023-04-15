@@ -42,7 +42,7 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
         let bond = &mut portfolio.bonds[*i as usize];
         bond.sold += 1;
         msg!("BondId: {}, amount: {}, used: {}", *i, bond.amount, bond.used);
-        sum += bond.amount / bond.used as u64;
+        //sum += bond.amount / bond.used as u64;
     }
     msg!("Asset cost: {}", sum);
     take_token(sum, auth_vault_ai.clone(), treasury_ai.clone(), auth_ai.clone(), token_program.clone())?;
