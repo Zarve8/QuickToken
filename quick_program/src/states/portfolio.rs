@@ -22,6 +22,7 @@ pub struct Portfolio{
     pub bump: u8,
     pub status: PortfolioStatus,
     pub period: u64,
+    pub end: u64,
     pub bonds: Vec<Bond>,
     pub payout_mask: Vec<u8>
 }
@@ -34,6 +35,7 @@ impl Portfolio {
             token_storage: token_storage.clone(),
             bump,
             period: 0,
+            end: 0,
             status: PortfolioStatus::Created,
             bonds: Vec::new(),
             payout_mask: Vec::new()

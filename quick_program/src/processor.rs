@@ -36,8 +36,8 @@ impl Processor {
             Instruction::InsertBond {name, amount, rate} => {
                 processor::insert_bond::insert_bond(_program_id, accounts_iter, name, amount, rate)?;
             }
-            Instruction::MintAsset {participation} => {
-                processor::mint_asset::mint_asset(_program_id, accounts_iter, participation)?;
+            Instruction::MintAsset {url_id, participation} => {
+                processor::mint_asset::mint_asset(_program_id, accounts_iter, url_id, participation)?;
             }
             Instruction::Start {period} => {
                 processor::start::start(_program_id, accounts_iter, period)?;
