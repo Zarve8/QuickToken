@@ -41,6 +41,7 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
     for i in asset.participation.iter() {
         let bond = &mut portfolio.bonds[*i as usize];
         bond.sold += 1;
+        msg!("BondId: {}, amount: {}, used: {}", *i, bond.amount, bond.used);
         sum += bond.amount / bond.used as u64;
     }
     msg!("Asset cost: {}", sum);
