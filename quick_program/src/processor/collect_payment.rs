@@ -8,8 +8,8 @@ use crate::utils::nft::burn_nft;
 use crate::states::portfolio::{Portfolio, PortfolioStatus};
 use crate::utils::accounts::{load_unchecked};
 use crate::utils::constants::BP_DEC;
-use crate::utils::programs::{check_token_program, is_signer};
-use crate::utils::transfer::{give_token};
+use crate::utils::programs::{check_associated_program, check_system_program, check_sysvar_program, check_token_program, is_signer};
+use crate::utils::transfer::{find_or_create_associated_account, give_token};
 
 
 pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo>) -> Result<(), ProgramError> {
@@ -22,8 +22,14 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
     let auth_asset_ai = next_account_info(account_iter)?;
     let auth_vault_ai = next_account_info(account_iter)?;
     let token_storage_ai = next_account_info(account_iter)?;
+    let system_program = next_account_info(account_iter)?;
+    check_system_program(system_program)?;
     let token_program = next_account_info(account_iter)?;
     check_token_program(token_program)?;
+    let associated_program = next_account_info(account_iter)?;
+    check_associated_program(associated_program)?;
+    let sysvar = next_account_info(account_iter)?;
+    check_sysvar_program(sysvar)?;
     let mut portfolio = load_unchecked::<Portfolio>(portfolio_ai)?;
     portfolio.check_tag()?;
     let asset = load_unchecked::<Asset>(asset_ai)?;
@@ -51,6 +57,8 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
         }
     }
     msg!("Asset payout: {}", sum);
+    find_or_create_associated_account(auth_ai.clone(), auth_vault_ai.clone(), usdt_mint_ai.clone(), auth_ai.clone(),
+    system_program.clone(), token_program.clone(), associated_program.clone(), sysvar.clone())?;
     give_token(sum, auth_vault_ai.clone(), token_storage_ai.clone(), usdt_mint_ai.key,
                token_program.clone(), portfolio_ai.clone(), program_id)
 }

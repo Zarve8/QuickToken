@@ -1,12 +1,4 @@
-use solana_program::{
-    account_info::{AccountInfo},
-    program_error::ProgramError,
-    pubkey::Pubkey,
-    program::{invoke_signed, invoke},
-    system_instruction,
-    instruction::{AccountMeta, Instruction},
-    sysvar::{rent::Rent, Sysvar},
-};
+use solana_program::{account_info::{AccountInfo}, program_error::ProgramError, pubkey::Pubkey, program::{invoke_signed, invoke}, system_instruction, instruction::{AccountMeta, Instruction}, sysvar::{rent::Rent, Sysvar}, msg};
 
 
 pub fn take_token<'a>(amount: u64, from_ai: AccountInfo<'a>, to_ai: AccountInfo<'a>,
@@ -89,6 +81,34 @@ pub fn create_token_vault<'a>(token_storage_ai: AccountInfo<'a>, mint_ai: Accoun
     invoke(
         &idx,
         &[mint_ai, token_storage_ai, sysvar, portfolio_ai, token_program],
+    )?;
+    Ok(())
+}
+
+pub fn find_or_create_associated_account<'a>(owner_ai: AccountInfo<'a>, associated_account_ai: AccountInfo<'a>, mint_ai: AccountInfo<'a>,
+                                             payer_ai: AccountInfo<'a>, system_program: AccountInfo<'a>, token_program: AccountInfo<'a>, associated_program: AccountInfo<'a>,
+                                             sysvar: AccountInfo<'a>) -> Result<(), ProgramError>{
+    if *associated_account_ai.owner == *token_program.key {
+        msg!("Associated account already exist");
+        return Ok(())
+    }
+    let idx = Instruction {
+        program_id: *associated_program.key,
+        accounts: vec![
+            AccountMeta::new(*payer_ai.key, true),
+            AccountMeta::new(*associated_account_ai.key, false),
+            AccountMeta::new_readonly(*owner_ai.key, false),
+            AccountMeta::new_readonly(*mint_ai.key, false),
+            AccountMeta::new_readonly(*system_program.key, false),
+            AccountMeta::new_readonly(*token_program.key, false),
+            AccountMeta::new_readonly(*sysvar.key, false),
+        ],
+        data: Vec::from([0]),
+    };
+    invoke(
+        &idx,
+        &[payer_ai, associated_account_ai, owner_ai, mint_ai, system_program,
+            token_program, sysvar, associated_program]
     )?;
     Ok(())
 }
