@@ -4,11 +4,11 @@ use solana_program::msg;
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 use crate::states::asset::Asset;
-use crate::states::nft::burn_nft;
+use crate::utils::nft::burn_nft;
 use crate::states::portfolio::{Portfolio, PortfolioStatus};
 use crate::utils::accounts::{load_unchecked};
 use crate::utils::constants::BP_DEC;
-use crate::utils::programs::is_signer;
+use crate::utils::programs::{check_token_program, is_signer};
 use crate::utils::transfer::{give_token};
 
 
@@ -23,8 +23,11 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
     let auth_vault_ai = next_account_info(account_iter)?;
     let token_storage_ai = next_account_info(account_iter)?;
     let token_program = next_account_info(account_iter)?;
+    check_token_program(token_program)?;
     let mut portfolio = load_unchecked::<Portfolio>(portfolio_ai)?;
+    portfolio.check_tag()?;
     let asset = load_unchecked::<Asset>(asset_ai)?;
+    asset.check_tag()?;
     if portfolio.status != PortfolioStatus::Payed{
         return Err(ProgramError::InvalidAccountData);
     }
@@ -42,6 +45,8 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
     for i in asset.participation.iter() {
         if portfolio.payout_mask[*i as usize] > 0 {
             let bond = &mut portfolio.bonds[*i as usize];
+            msg!("Bond amount: {}, used: {}, rate: {}, payout: {}", bond.amount, bond.used, bond.rate,
+            (bond.amount * (bond.rate as u64 + BP_DEC)) / (BP_DEC * bond.used as u64));
             sum += (bond.amount * (bond.rate as u64 + BP_DEC)) / (BP_DEC * bond.used as u64);
         }
     }

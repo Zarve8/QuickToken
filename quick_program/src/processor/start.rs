@@ -14,7 +14,9 @@ pub fn start<'g>(_program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo>, 
     let company_ai = next_account_info(account_iter)?;
     let portfolio_ai = next_account_info(account_iter)?;
     let company = load_unchecked::<Company>(company_ai)?;
+    company.check_tag()?;
     let mut portfolio = load_unchecked::<Portfolio>(portfolio_ai)?;
+    portfolio.check_tag()?;
     if company.owner != *auth_ai.key {
         return Err(ProgramError::IllegalOwner);
     }

@@ -5,10 +5,10 @@ use solana_program::pubkey::Pubkey;
 use crate::states::account_tag::AccountTag;
 use crate::states::asset::Asset;
 use crate::states::company::Company;
-use crate::states::nft::{create_mint, mint_nft};
+use crate::utils::nft::{create_mint, mint_nft};
 use crate::states::portfolio::{Portfolio, PortfolioStatus};
 use crate::utils::accounts::{create, load_unchecked, save};
-use crate::utils::programs::is_signer;
+use crate::utils::programs::{check_system_program, check_sysvar_program, check_token_program, is_signer};
 use crate::utils::transfer::{create_token_vault};
 
 
@@ -21,10 +21,15 @@ pub fn mint_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInf
     let asset_ai = next_account_info(account_iter)?;
     let asset_storage_ai = next_account_info(account_iter)?;
     let system_program = next_account_info(account_iter)?;
+    check_system_program(system_program)?;
     let token_program = next_account_info(account_iter)?;
+    check_token_program(token_program)?;
     let sysvar = next_account_info(account_iter)?;
+    check_sysvar_program(sysvar)?;
     let company = load_unchecked::<Company>(company_ai)?;
+    company.check_tag()?;
     let mut portfolio = load_unchecked::<Portfolio>(portfolio_ai)?;
+    portfolio.check_tag()?;
     if company.owner != *auth_ai.key {
         return Err(ProgramError::IllegalOwner);
     }

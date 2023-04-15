@@ -7,7 +7,7 @@ use crate::states::asset::Asset;
 use crate::states::company::Company;
 use crate::states::portfolio::{Portfolio, PortfolioStatus};
 use crate::utils::accounts::{load_unchecked, save};
-use crate::utils::programs::is_signer;
+use crate::utils::programs::{check_token_program, is_signer};
 use crate::utils::transfer::{give_token, take_token};
 
 
@@ -22,8 +22,11 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
     let asset_storage_ai = next_account_info(account_iter)?;
     let auth_asset_ai = next_account_info(account_iter)?;
     let token_program = next_account_info(account_iter)?;
+    check_token_program(token_program)?;
     let company = load_unchecked::<Company>(company_ai)?;
+    company.check_tag()?;
     let mut portfolio = load_unchecked::<Portfolio>(portfolio_ai)?;
+    portfolio.check_tag()?;
     if company.treasury != *treasury_ai.key {
         return Err(ProgramError::InvalidAccountData);
     }
@@ -34,6 +37,7 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
         return Err(ProgramError::InvalidAccountData);
     }
     let asset = load_unchecked::<Asset>(asset_ai)?;
+    asset.check_tag()?;
     if asset.portfolio != *portfolio_ai.key {
         return Err(ProgramError::InvalidAccountData);
     }

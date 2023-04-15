@@ -1,4 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 use crate::states::account_tag::AccountTag;
 use crate::states::bond::Bond;
@@ -37,5 +38,12 @@ impl Portfolio {
             bonds: Vec::new(),
             payout_mask: Vec::new()
         }
+    }
+
+    pub fn check_tag(&self) -> Result<(), ProgramError> {
+        if self.tag != AccountTag::Portfolio {
+            return Err(ProgramError::InvalidAccountData);
+        }
+        Ok(())
     }
 }

@@ -6,7 +6,7 @@ use solana_program::pubkey::Pubkey;
 use crate::utils::accounts::{create, save};
 use crate::states::portfolio::Portfolio;
 use crate::utils::constants::USDT_MINT;
-use crate::utils::programs::is_signer;
+use crate::utils::programs::{check_system_program, check_sysvar_program, check_token_program, is_signer};
 use crate::utils::transfer::create_token_vault;
 
 
@@ -18,8 +18,11 @@ pub fn create_portfolio<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Acco
     let mint_ai = next_account_info(account_iter)?;
     let token_storage_ai = next_account_info(account_iter)?;
     let system_program = next_account_info(account_iter)?;
+    check_system_program(system_program)?;
     let token_program = next_account_info(account_iter)?;
+    check_token_program(token_program)?;
     let sysvar = next_account_info(account_iter)?;
+    check_sysvar_program(sysvar)?;
     if mint_ai.key.to_string() != USDT_MINT {
         msg!("Invlaid USDT mint address");
         //return Err(ProgramError::InvalidAccountData);

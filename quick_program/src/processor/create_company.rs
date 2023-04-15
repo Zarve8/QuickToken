@@ -5,7 +5,7 @@ use solana_program::pubkey::Pubkey;
 use crate::states::account_tag::AccountTag;
 use crate::utils::accounts::{create, save};
 use crate::states::company::Company;
-use crate::utils::programs::is_signer;
+use crate::utils::programs::{check_system_program, is_signer};
 
 
 pub fn create_company<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo>, name: Vec<u8>, description: Vec<u8>) -> Result<(), ProgramError> {
@@ -15,6 +15,7 @@ pub fn create_company<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accoun
     let treasury_ai = next_account_info(account_iter)?;
     let salt_ai = next_account_info(account_iter)?;
     let system_program = next_account_info(account_iter)?;
+    check_system_program(system_program)?;
     let (_key, bump) = Pubkey::find_program_address(&[
         "company".as_bytes(),
         program_id.as_ref(),
