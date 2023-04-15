@@ -42,7 +42,7 @@ pub fn give_token<'a>(amount: u64, to_ai: AccountInfo<'a>, token_storage_ai: Acc
         &token_program.key,
         &token_storage_ai.key,
         &to_ai.key,
-        &token_program.key,
+        &token_storage_ai.key,
         &[],
         amount,
     )?;
@@ -80,7 +80,7 @@ pub fn create_token_vault<'a>(token_storage_ai: AccountInfo<'a>, mint_ai: Accoun
         accounts: vec![
             AccountMeta::new(*token_storage_ai.key, false),
             AccountMeta::new_readonly(*mint_ai.key, false),
-            AccountMeta::new_readonly(*token_program.key, false),
+            AccountMeta::new_readonly(*token_storage_ai.key, false),
             AccountMeta::new_readonly(*sysvar.key, false),
         ],
         data: Vec::from([1]),
