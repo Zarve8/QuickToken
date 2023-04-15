@@ -41,7 +41,7 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
     for i in asset.participation.iter() {
         let bond = &portfolio.bonds[*i as usize];
         msg!("BondId: {}, amount: {}, used: {}", *i, bond.amount, bond.used);
-        //sum += bond.amount / bond.used as u64;
+        sum += bond.amount / bond.used as u64;
         portfolio.bonds[*i as usize].sold += 1;
         msg!("Used: {}, Sold: {}", portfolio.bonds[*i as usize].used, portfolio.bonds[*i as usize].sold);
     }
