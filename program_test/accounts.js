@@ -1,57 +1,52 @@
 const {PublicKey} = require("@solana/web3.js");
 
 
-async function getDeckAddress(collection, program) {
+async function getCompanyAddress(auth, salt, program) {
     const a = await PublicKey.findProgramAddress(
         [
-            Buffer.from('deck'),
-            collection.toBuffer(),
+            Buffer.from('company'),
+            program.toBuffer(),
+            auth.toBuffer(),
+            salt.toBuffer()
         ],
         program
     );
     return a[0];
 }
 
-async function getOfferAddress(mint, program) {
+async function getPortfolioAddress(auth, company, program) {
     const a = await PublicKey.findProgramAddress(
         [
-            Buffer.from('offer'),
-            mint.toBuffer(),
+            Buffer.from('portfolio'),
+            program.toBuffer(),
+            auth.toBuffer(),
+            company.toBuffer()
         ],
         program
     );
     return a[0];
 }
 
-async function getTreasuryAddress(mint, deck, program) {
+async function getStorageAddress(portfolio, mint, program) {
     const a = await PublicKey.findProgramAddress(
         [
-            Buffer.from('treasury'),
-            mint.toBuffer(),
-            deck.toBuffer()
+            Buffer.from('vault'),
+            program.toBuffer(),
+            portfolio.toBuffer(),
+            mint.toBuffer()
         ],
         program
     );
     return a[0];
 }
 
-async function getRaffleAddress(deck, program) {
+async function getAssetAddress(portfolio, mint, program) {
     const a = await PublicKey.findProgramAddress(
         [
-            Buffer.from('raffle'),
-            deck.toBuffer()
-        ],
-        program
-    );
-    return a[0];
-}
-
-async function getTicketAddress(owner, deck, program) {
-    const a = await PublicKey.findProgramAddress(
-        [
-            Buffer.from('ticket'),
-            deck.toBuffer(),
-            owner.toBuffer()
+            Buffer.from('asset'),
+            program.toBuffer(),
+            portfolio.toBuffer(),
+            mint.toBuffer()
         ],
         program
     );
@@ -59,4 +54,4 @@ async function getTicketAddress(owner, deck, program) {
 }
 
 
-module.exports = {getDeckAddress, getOfferAddress, getTreasuryAddress, getRaffleAddress, getTicketAddress};
+module.exports = {getCompanyAddress, getStorageAddress, getAssetAddress, getPortfolioAddress};

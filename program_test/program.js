@@ -9,21 +9,30 @@ const MetadataProgram = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x
 const Sysvar = new PublicKey("SysvarRent111111111111111111111111111111111");
 
 
-async function run(program, idx, wallet, accounts, used_sys, afterAccounts=[]) { // PublicKey, Keypair, PublicKey[], [bool, bool, bool, bool, bool] -> bool
+async function run(program, idx, wallet, accounts, used_sys, afterAccounts=[], signers = []) { // PublicKey, Keypair, PublicKey[], [bool, bool, bool, bool, bool] -> bool
     const connection = new Connection("https://api.devnet.solana.com/");
     let tx = new Transaction();
-    let signers = [wallet];
+    signers = [wallet].concat(signers);
     let keys = [{
         pubkey: wallet.publicKey,
         isSigner: true,
         isWritable: true,
     }];
     accounts.forEach(account => {
-        keys.push({
-            pubkey: account,
-            isSigner: false,
-            isWritable: true,
-        })
+        if(signers.filter((value) => {return value.publicKey.equals(account)}).length > 0){
+            keys.push({
+                pubkey: account,
+                isSigner: true,
+                isWritable: true,
+            })
+        }
+        else {
+            keys.push({
+                pubkey: account,
+                isSigner: false,
+                isWritable: true,
+            })
+        }
     });
     if(used_sys[0]) keys.push({
         pubkey: SystemProgram,
@@ -51,11 +60,20 @@ async function run(program, idx, wallet, accounts, used_sys, afterAccounts=[]) {
         isWritable: false,
     });
     afterAccounts.forEach(account => {
-        keys.push({
-            pubkey: account,
-            isSigner: false,
-            isWritable: true,
-        })
+        if(signers.filter((value) => {return value.publicKey.equals(account)}).length > 0){
+            keys.push({
+                pubkey: account,
+                isSigner: true,
+                isWritable: true,
+            })
+        }
+        else {
+            keys.push({
+                pubkey: account,
+                isSigner: false,
+                isWritable: true,
+            })
+        }
     });
     let incrIx = new TransactionInstruction({
         keys: keys,
@@ -63,13 +81,18 @@ async function run(program, idx, wallet, accounts, used_sys, afterAccounts=[]) {
         data: Buffer.from(new Uint8Array(idx)),
     });
     tx.add(incrIx);
-    let txid = await sendAndConfirmTransaction(connection, tx, signers,{
-        skipPreflight: true,
-        preflightCommitment: "confirmed",
-        confirmation: "confirmed",
-    });
-    console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`);
-    return true;
+    try {
+        let txid = await sendAndConfirmTransaction(connection, tx, signers,{
+            skipPreflight: false,
+            preflightCommitment: "confirmed",
+            confirmation: "confirmed",
+        });
+        console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`);
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+    }
 }
 
 

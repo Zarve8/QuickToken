@@ -6,7 +6,7 @@ const {prepareAccount} = require("./wallet");
 const connection = new Connection("https://api.devnet.solana.com");
 
 
-async function createToken(wallet, suppressLog=true) { // Keypair -> [Pubkey, Pubkey]
+async function createToken(wallet, Auth2, suppressLog=true) { // Keypair -> [Pubkey, Pubkey]
     const mint = new Keypair();
     let tx = new Transaction();
     tx.add(
@@ -37,21 +37,42 @@ async function createToken(wallet, suppressLog=true) { // Keypair -> [Pubkey, Pu
             mint.publicKey
         )
     );
+    let associatedAccount2 = await splToken.getAssociatedTokenAddress(
+        mint.publicKey, // mint
+        Auth2.publicKey, // owner
+        false
+    );
+    tx.add(
+        splToken.createAssociatedTokenAccountInstruction(
+            Auth2.publicKey,
+            associatedAccount2,
+            Auth2.publicKey,
+            mint.publicKey
+        )
+    );
     tx.add(
         splToken.createMintToInstruction(
             mint.publicKey,
             associatedAccount,
             wallet.publicKey,
-            1
+            10000
         )
     );
-    let txId = await sendAndConfirmTransaction(connection, tx, [wallet, mint],{
+    tx.add(
+        splToken.createMintToInstruction(
+            mint.publicKey,
+            associatedAccount2,
+            wallet.publicKey,
+            10000
+        )
+    );
+    let txId = await sendAndConfirmTransaction(connection, tx, [wallet, mint, Auth2],{
         skipPreflight: true,
         preflightCommitment: "confirmed",
         confirmation: "confirmed",
     });
-    if(!suppressLog) console.log("TokenCreation:", txId);
-    return [mint.publicKey, associatedAccount];
+    if(!suppressLog) console.log("TokenCreation:", `https://explorer.solana.com/tx/${txId}?cluster=devnet`);
+    return [mint.publicKey, associatedAccount, associatedAccount2];
 }
 
 const MPL_TOKEN_METADATA_PROGRAM_ID = mpl.PROGRAM_ID;
@@ -204,5 +225,29 @@ async function createNFT(wallet, suppressLog=true) { // Pubkey -> Pubkey[] ~ [Mi
     return [mint, account, meta, collectionMint];
 }
 
+async function createAssociatedAccount(wallet, mint) {
+    let tx = new Transaction();
+    let associatedAccount = await splToken.getAssociatedTokenAddress(
+        mint, // mint
+        wallet.publicKey, // owner
+        false
+    );
+    tx.add(
+        splToken.createAssociatedTokenAccountInstruction(
+            wallet.publicKey,
+            associatedAccount,
+            wallet.publicKey,
+            mint
+        )
+    );
+    let txId = await sendAndConfirmTransaction(connection, tx, [wallet],{
+        skipPreflight: true,
+        preflightCommitment: "confirmed",
+        confirmation: "confirmed",
+    });
+    console.log("Associated Account Creation:", `https://explorer.solana.com/tx/${txId}?cluster=devnet`);
+    return associatedAccount;
+}
 
-module.exports = {prepareAccount, createToken, createMetadata, createNFT};
+
+module.exports = {prepareAccount, createToken, createMetadata, createNFT, createAssociatedAccount};
