@@ -46,5 +46,5 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
     }
     msg!("Asset payout: {}", sum);
     give_token(sum, auth_vault_ai.clone(), token_storage_ai.clone(), asset_mint_ai.key,
-               token_program.clone(), portfolio_ai.clone(), program_id, portfolio.bump)
+               token_program.clone(), portfolio_ai.clone(), program_id)
 }

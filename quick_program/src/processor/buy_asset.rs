@@ -40,13 +40,13 @@ pub fn buy_asset<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo
     let mut sum = 0;
     for i in asset.participation.iter() {
         let bond = &mut portfolio.bonds[*i as usize];
-        bond.sold += 1;
+        //bond.sold += 1;
         msg!("BondId: {}, amount: {}, used: {}", *i, bond.amount, bond.used);
         //sum += bond.amount / bond.used as u64;
     }
     msg!("Asset cost: {}", sum);
     take_token(sum, auth_vault_ai.clone(), treasury_ai.clone(), auth_ai.clone(), token_program.clone())?;
     give_token(1, auth_asset_ai.clone(), asset_storage_ai.clone(), &asset.mint, token_program.clone(),
-    portfolio_ai.clone(), program_id, portfolio.bump)?;
+    portfolio_ai.clone(), program_id)?;
     save(&portfolio, portfolio_ai)
 }

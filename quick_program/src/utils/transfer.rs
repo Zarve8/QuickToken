@@ -29,14 +29,20 @@ pub fn take_token<'a>(amount: u64, from_ai: AccountInfo<'a>, to_ai: AccountInfo<
 
 
 pub fn give_token<'a>(amount: u64, to_ai: AccountInfo<'a>, token_storage_ai: AccountInfo<'a>, mint: &Pubkey, token_program: AccountInfo<'a>,
-                      portfolio_ai: AccountInfo<'a>, program_id: &Pubkey, bump: u8) -> Result<(), ProgramError>{
+                      portfolio_ai: AccountInfo<'a>, program_id: &Pubkey) -> Result<(), ProgramError>{
     if amount == 0 {return Ok(());}
+    let (_key, bump) = Pubkey::find_program_address(&[
+        "vault".as_bytes(),
+        program_id.as_ref(),
+        portfolio_ai.key.as_ref(),
+        mint.as_ref(),
+    ], program_id);
     let seeds: &[&[&[u8]]] = &[&["vault".as_bytes(), program_id.as_ref(), portfolio_ai.key.as_ref(), mint.as_ref(), &[bump]]];
     let idx = spl_token::instruction::transfer(
         &token_program.key,
         &token_storage_ai.key,
         &to_ai.key,
-        &portfolio_ai.key,
+        &token_program.key,
         &[],
         amount,
     )?;
@@ -74,7 +80,7 @@ pub fn create_token_vault<'a>(token_storage_ai: AccountInfo<'a>, mint_ai: Accoun
         accounts: vec![
             AccountMeta::new(*token_storage_ai.key, false),
             AccountMeta::new_readonly(*mint_ai.key, false),
-            AccountMeta::new_readonly(*portfolio_ai.key, false),
+            AccountMeta::new_readonly(*token_program.key, false),
             AccountMeta::new_readonly(*sysvar.key, false),
         ],
         data: Vec::from([1]),
