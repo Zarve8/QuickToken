@@ -1,0 +1,12 @@
+use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::pubkey::Pubkey;
+use crate::states::account_tag::AccountTag;
+
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+pub struct Asset{
+    pub tag: AccountTag,
+    pub portfolio: Pubkey,
+    pub mint: Pubkey,
+    pub participation: Vec<u8>
+}
