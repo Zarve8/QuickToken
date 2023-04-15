@@ -36,6 +36,8 @@ pub fn payout<'g>(_program_id: &'g Pubkey, account_iter: &mut Iter<AccountInfo>,
     let mut sum = 0;
     for (bond, m) in portfolio.bonds.iter().zip(mask.iter()) {
         if *m > 0 && bond.sold > 0{
+            msg!("Bond amount: {}, sold: {}, used: {}, rate: {}, payment: {}", bond.amount, bond.sold, bond.used, bond.rate,
+                (bond.amount * (BP_DEC + bond.rate as u64) * bond.sold as u64) / (BP_DEC * bond.used as u64));
             sum += (bond.amount * (BP_DEC + bond.rate as u64) * bond.sold as u64) / (BP_DEC * bond.used as u64);
         }
     }

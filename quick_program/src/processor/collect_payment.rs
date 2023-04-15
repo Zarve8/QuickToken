@@ -16,6 +16,7 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
     let auth_ai = next_account_info(account_iter)?;
     is_signer(auth_ai)?;
     let portfolio_ai = next_account_info(account_iter)?;
+    let usdt_mint_ai = next_account_info(account_iter)?;
     let asset_mint_ai = next_account_info(account_iter)?;
     let asset_ai = next_account_info(account_iter)?;
     let auth_asset_ai = next_account_info(account_iter)?;
@@ -45,6 +46,6 @@ pub fn collect_payment<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Accou
         }
     }
     msg!("Asset payout: {}", sum);
-    give_token(sum, auth_vault_ai.clone(), token_storage_ai.clone(), asset_mint_ai.key,
+    give_token(sum, auth_vault_ai.clone(), token_storage_ai.clone(), usdt_mint_ai.key,
                token_program.clone(), portfolio_ai.clone(), program_id)
 }
