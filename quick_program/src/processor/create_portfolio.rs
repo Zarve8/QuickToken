@@ -22,7 +22,7 @@ pub fn create_portfolio<'g>(program_id: &'g Pubkey, account_iter: &mut Iter<Acco
     let sysvar = next_account_info(account_iter)?;
     if mint_ai.key.to_string() != USDT_MINT {
         msg!("Invlaid USDT mint address");
-        return Err(ProgramError::InvalidAccountData);
+        //return Err(ProgramError::InvalidAccountData);
     }
     let (_key, bump) = Pubkey::find_program_address(&[
         "portfolio".as_bytes(),
