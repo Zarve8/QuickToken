@@ -1,0 +1,23 @@
+{
+  "name": "helpers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx tsc && node ./dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^2.2.1",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/web3.js": "^1.73.2",
+    "base-58": "^0.0.1",
+    "big-integer": "^1.6.51",
+    "bn": "^1.0.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

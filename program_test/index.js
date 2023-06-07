@@ -6,7 +6,7 @@ const {createToken, createAssociatedAccount} = require("./mpl");
 const {getAssociatedTokenAddress} = require("@solana/spl-token");
 const mpl = require("@metaplex-foundation/mpl-token-metadata");
 
-const QuickProgram = new PublicKey("95mR1vSzKaW2wTLJdXd1BG5zM4AZeGBpwdcP8jzAro75");
+const QuickProgram = new PublicKey("AuCTk5ddzhoT9yXThZd7M25rbZx5ushwdUSH8EiAZJXx");
 let Auth, Auth2, USDT_Mint, Treasury, Vault2, Company, Portfolio, Token_Storage;
 let Assets = [];
 let Asset_Mints = [];
@@ -23,13 +23,15 @@ async function prepare() {
 async function createCompany() {
     const Salt = new Keypair().publicKey;
     Company = await getCompanyAddress(Auth.publicKey, Salt, QuickProgram);
+    console.log("Company:", Company.toBase58());
     await run(QuickProgram, [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 2], Auth, [Company, Treasury, Salt], [1, 0, 0, 0, 0]);
 }
 
 async function createPortfolio() {
     Portfolio = await getPortfolioAddress(Auth.publicKey, Company, QuickProgram);
     Token_Storage = await getStorageAddress(Portfolio, USDT_Mint, QuickProgram);
-    await run(QuickProgram, [1, 5, 0, 0, 0], Auth, [Company, Portfolio, USDT_Mint, Token_Storage], [1, 1, 0, 0, 1]);
+    console.log("Portfolio:", Portfolio.toBase58());
+    await run(QuickProgram, [1, 5, 0, 0, 0, 1], Auth, [Company, Portfolio, USDT_Mint, Token_Storage], [1, 1, 0, 0, 1]);
 }
 
 async function insertBond(name, amount, rate) {
@@ -51,6 +53,7 @@ async function mintAsset(mask) {
     const meta = await getMetadataPDA(mint.publicKey);
     const asset = await getAssetAddress(Portfolio, mint.publicKey, QuickProgram);
     const storage = await getStorageAddress(Portfolio, mint.publicKey, QuickProgram);
+    console.log("Asset:", asset.toBase58());
     await run(QuickProgram, [3, 1, mask.length, 0, 0, 0].concat(mask), Auth, [Company, Portfolio, mint.publicKey, asset, storage, meta], [1, 1, 0, 1, 1], [], [mint]);
     Asset_Mints.push(mint.publicKey);
     Asset_Storages.push(storage);
@@ -77,7 +80,7 @@ async function payout(mask) {
 }
 
 async function collectPayment(mintId) {
-    await run(QuickProgram, [8], Auth2, [Portfolio, USDT_Mint, Asset_Mints[mintId], Assets[mintId], Asset_Vaults[mintId], Vault2, Token_Storage], [1, 1, 1, 0, 1]);
+    await run(QuickProgram, [8], Auth2, [Company, Portfolio, USDT_Mint, Asset_Mints[mintId], Assets[mintId], Asset_Vaults[mintId], Vault2, Token_Storage], [1, 1, 1, 0, 1]);
 }
 
 async function pipeline(){

@@ -66,13 +66,19 @@ async function createToken(wallet, Auth2, suppressLog=true) { // Keypair -> [Pub
             10000
         )
     );
-    let txId = await sendAndConfirmTransaction(connection, tx, [wallet, mint, Auth2],{
-        skipPreflight: true,
-        preflightCommitment: "confirmed",
-        confirmation: "confirmed",
-    });
-    if(!suppressLog) console.log("TokenCreation:", `https://explorer.solana.com/tx/${txId}?cluster=devnet`);
-    return [mint.publicKey, associatedAccount, associatedAccount2];
+    console.log("Here")
+    try{
+        let txId = await sendAndConfirmTransaction(connection, tx, [wallet, mint, Auth2],{
+            skipPreflight: false,
+            preflightCommitment: "confirmed",
+            confirmation: "confirmed",
+        });
+        if(!suppressLog) console.log("TokenCreation:", `https://explorer.solana.com/tx/${txId}?cluster=devnet`);
+        return [mint.publicKey, associatedAccount, associatedAccount2];
+    }
+    catch(e){
+        console.log(e)
+    }
 }
 
 const MPL_TOKEN_METADATA_PROGRAM_ID = mpl.PROGRAM_ID;

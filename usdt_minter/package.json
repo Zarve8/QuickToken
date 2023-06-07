@@ -1,0 +1,18 @@
+{
+  "name": "usdt_minter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.73.2",
+    "@metaplex-foundation/mpl-token-metadata": "^2.2.1",
+    "@solana/spl-token": "^0.2.0",
+    "big-integer": "^1.6.51"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
