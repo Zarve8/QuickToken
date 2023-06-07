@@ -1,0 +1,47 @@
+:root {
+    --black: #000000;
+    --white: #ffffff;
+    --white-hover: #ffffff;
+    --white-press: #e1e1e1;
+    --white-disabled: #a9a9a9;
+    --grey: #c0c0c0;
+    --dark-grey: #8b8b8b;
+    --cyan: #00BFFF;
+    --cyan-hover: #2fcbff;
+    --cyan-press: #2296bd;
+    --cyan-disabled: #68adc4;
+    --title: #485166;
+    --title-hover: #6d7ea6;
+    --title-press: #333948;
+    --title-disabled: #636c81;
+    --pool: #090C15;
+    --text: #636372;
+    --red: #FF0000;
+    --none: transparent;
+    --border: #272D3F;
+}
+
+body{
+    background-color: var(--black);
+}
+
+.pool {
+    padding: 15px;
+    border-radius: 35px;
+    background-color: var(--pool);
+    margin-top: 90px;
+    max-width: 725px;
+}
+.title{
+    color: var(--title);
+}
+.cross {
+    font-size: 20px;
+    position: relative;
+    float: right;
+    color: red;
+}
+.my-row{
+    width: 100%;
+    margin-bottom: 10px;
+}
